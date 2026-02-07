@@ -16,11 +16,6 @@ def is_admin():
 def run_command(command, admin_required=False, dry_run=False):
     """
     Run a command with optional elevation or just preview it in dry-run mode.
-
-    Args:
-        command (list): Command as a list of strings.
-        admin_required (bool): Whether this command needs admin/root privileges.
-        dry_run (bool): If True, only prints the command without executing.
     """
     system = platform.system()
     user_is_admin = is_admin()
@@ -42,7 +37,7 @@ def run_command(command, admin_required=False, dry_run=False):
             command_to_run.insert(0, "sudo")
 
     if dry_run:
-        print("\nDry run mode: the command that WOULD be executed is:")
+        print("\nDry run mode: the command that would be executed is:")
         print(" ".join(command_to_run))
         return None
 

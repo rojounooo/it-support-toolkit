@@ -67,6 +67,8 @@ def run_script(os_name, module_path, task, dry_run=False):
     else:
         script_path = module_path / os_name / f"{script_base}.sh"
 
+    abs_script_path = str(script_path.resolve())
+
     # Get parameters
     params = task.get("params", [])
     values = []
@@ -74,42 +76,58 @@ def run_script(os_name, module_path, task, dry_run=False):
     if params:
         print("\nEnter parameters:")
         for param in params:
-            value = input(f"{param}: ")
-            values.append(value)
+            values.append(input(f"{param}: "))
 
-    # Build command
+    # Build command safely
     if os_name == "windows":
-        command = ["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", str(script_path), *values]
+        command = [
+            "powershell.exe",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            abs_script_path,
+            *values
+        ]
     else:
-        command = [str(script_path), *values]
+        # Always run via bash for reliability
+        command = ["bash", abs_script_path, *values]
 
-    # Run dry-run first if requested
+    # Dry run
     if dry_run:
-        run_command(command, admin_required=task.get("admin", False), dry_run=True)
+        run_command(
+            command,
+            admin_required=task.get("admin", False),
+            dry_run=True
+        )
 
-        # Ask if user wants to actually execute
-        execute_input = input("\nDo you want to actually run this command now? (y/n): ").lower().strip()
-        if execute_input != "y":
+        execute = input("\nDo you want to actually run this command now? (y/n): ").strip().lower()
+        if execute != "y":
             print("Command skipped.")
             return
-        else:
-            print("\nExecuting command...")
 
-    # Run the command for real
-    result = run_command(command, admin_required=task.get("admin", False), dry_run=False)
+        print("\nExecuting command...")
+
+    # Execute for real
+    result = run_command(
+        command,
+        admin_required=task.get("admin", False),
+        dry_run=False
+    )
 
     if result:
         print("\nYou selected:")
         print(f"OS: {os_name}")
         print(f"Module: {module_path.name}")
         print(f"Tool: {task['name']}")
-        print(f"Script path: {script_path}")
+        print(f"Script path: {abs_script_path}")
         print(f"Parameters: {values}")
         print("\nOutput:")
         print(result.stdout)
         if result.stderr:
             print("Error Output:")
             print(result.stderr)
+
+
 
 if __name__ == "__main__":
     try:
