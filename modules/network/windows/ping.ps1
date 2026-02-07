@@ -1,0 +1,1 @@
+Test-Connection -ComputerName $args[0] -Count $args[1] 

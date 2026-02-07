@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Ping",
+    "script": "ping",
+    "params": ["host", "count"]
+  },
+
+  {
+    "name": "DNS Check",
+    "script": "dns_check",
+    "params": []
+  }
+]
