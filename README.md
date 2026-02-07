@@ -29,15 +29,16 @@ This project helps to automate everyday troubleshooting work on **Windows, macOS
 
 ```
 it-support-toolkit/
-├── cli.py            # Main command-line program
-├── tasks/            # Scripts grouped by OS
-│   ├── windows/
-│   ├── macos/
-│   └── linux/
-├── tasks.json        # List of available tasks
+├── toolkit.py        # Main command-line program
+├── modules/          # Scripts grouped by category and OS
+│   ├── network/
+│   │   ├── linux/
+│   │   ├── macos/
+│   │   └── windows/
+│   ├── system/
+│   └── ...
 ├── utils/            # Shared helper code
-├── README.md
-└── requirements.txt
+└── README.md
 ```
 
 ---
@@ -59,7 +60,6 @@ Some tasks may require administrator or sudo access.
 ```bash
 git clone https://github.com/rojounooo/it-support-toolkit.git
 cd it-support-toolkit
-pip install -r requirements.txt
 ```
 
 ---
@@ -69,7 +69,7 @@ pip install -r requirements.txt
 Run the tool:
 
 ```bash
-python cli.py
+python toolkit.py
 ```
 
 The CLI walks through:
@@ -83,27 +83,20 @@ Results are printed to the terminal so they can be copied directly into support 
 
 ## Example Tasks
 
-### Windows
-- Network information
-- Flush DNS cache
-- List installed software
-
-### macOS
-- System information summary
-- Wi-Fi checks
-
-### Linux
-- Disk usage report
+- Network information and diagnostics
+- DNS cache operations
+- System information summary  
+- Disk usage reports
 - Service status checks
+- List installed software
 
 ---
 
 ## Adding New Tasks
 
-1. Add a script to the correct OS folder  
+1. Add a script to the appropriate category and OS folder in `modules/`  
 2. Make sure it runs on its own  
-3. Register it in `tasks.json`  
-4. Keep output clean and readable  
+3. Keep output clean and readable  
 
 Scripts can be written in:
 - Bash  
@@ -116,7 +109,7 @@ Scripts can be written in:
 - Practice real-world helpdesk automation  
 - Reduce repetitive troubleshooting work  
 - Build practical scripting skills  
-- Maintain a clean, portfolio-ready project  
+ 
 
 ---
 
