@@ -1,9 +1,6 @@
-import subprocess
 import pathlib
 import json
 from privilege_runner import run_command, is_admin
-import os
-import platform
 
 def select_os():
     print("Select OS:")
@@ -86,11 +83,22 @@ def run_script(os_name, module_path, task, dry_run=False):
     else:
         command = [str(script_path), *values]
 
-    # Run command using privilege_runner with optional dry-run
-    result = run_command(command, admin_required=task.get("admin", False), dry_run=dry_run)
+    # Run dry-run first if requested
+    if dry_run:
+        run_command(command, admin_required=task.get("admin", False), dry_run=True)
 
-    # Display results if not dry-run
-    if not dry_run and result:
+        # Ask if user wants to actually execute
+        execute_input = input("\nDo you want to actually run this command now? (y/n): ").lower().strip()
+        if execute_input != "y":
+            print("Command skipped.")
+            return
+        else:
+            print("\nExecuting command...")
+
+    # Run the command for real
+    result = run_command(command, admin_required=task.get("admin", False), dry_run=False)
+
+    if result:
         print("\nYou selected:")
         print(f"OS: {os_name}")
         print(f"Module: {module_path.name}")
