@@ -2,9 +2,9 @@ import os
 import platform
 import ctypes
 import subprocess
+import sys
 
 def is_admin():
-    """Return True if the current user is admin/root, False otherwise."""
     if platform.system() == "Windows":
         try:
             return ctypes.windll.shell32.IsUserAnAdmin() != 0
@@ -14,15 +14,11 @@ def is_admin():
         return os.geteuid() == 0
 
 def run_command(command, admin_required=False, dry_run=False):
-    """
-    Run a command with optional elevation or just preview it in dry-run mode.
-    """
     system = platform.system()
     user_is_admin = is_admin()
 
     if system == "Windows":
         if admin_required and not user_is_admin:
-            # Elevate using Start-Process with RunAs
             argument_list = " ".join(command)
             command_to_run = [
                 "powershell.exe",
@@ -31,8 +27,8 @@ def run_command(command, admin_required=False, dry_run=False):
             ]
         else:
             command_to_run = command
-    else:  # Linux / macOS
-        command_to_run = command
+    else:
+        command_to_run = command[:]
         if admin_required and not user_is_admin:
             command_to_run.insert(0, "sudo")
 
@@ -42,8 +38,13 @@ def run_command(command, admin_required=False, dry_run=False):
         return None
 
     try:
-        result = subprocess.run(command_to_run, capture_output=True, text=True)
-        return result
+        return subprocess.run(
+            command_to_run,
+            stdin=sys.stdin,
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+            text=True
+        )
     except Exception as e:
         print(f"Failed to execute command: {e}")
         return None
