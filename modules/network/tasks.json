@@ -2,12 +2,21 @@
   {
     "name": "Ping",
     "script": "ping",
-    "params": ["host", "count"]
+    "params": [
+      "host",
+      "count"
+    ]
   },
-
   {
     "name": "DNS Check",
     "script": "dns_check",
     "params": []
+  },
+  {
+    "name": "Traceroute",
+    "script": "traceroute",
+    "params": [
+      "host"
+    ]
   }
 ]
