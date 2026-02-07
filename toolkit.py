@@ -1,43 +1,33 @@
 import subprocess
 import pathlib
 import json
-
+from privilege_runner import run_command, is_admin
+import os
+import platform
 
 def select_os():
-    """Prompts the user to select an operating system."""
     print("Select OS:")
     print("1) linux")
     print("2) windows")
     print("3) mac")
 
-    # Map OS choices to OS names, dictionary allows for future expansion
-    os_map = {
-        1: "linux",
-        2: "windows",
-        3: "mac"
-    }
+    os_map = {1: "linux", 2: "windows", 3: "mac"}
 
     try:
         os_choice = int(input("Enter your choice: "))
         os_name = os_map.get(os_choice)
-
         if not os_name:
             raise ValueError("Invalid OS selection")
-        
         return os_name
     except ValueError:
         raise ValueError("Invalid input. Please enter a number.")
 
-
 def select_module():
-    """Prompts the user to select a module from the 'modules' directory."""
     modules_path = pathlib.Path("modules")
-    
     if not modules_path.exists():
         raise FileNotFoundError("Modules directory not found")
 
     modules = [m for m in modules_path.iterdir() if m.is_dir()]
-    
     print("\nSelect module:")
     for i, module in enumerate(modules, start=1):
         print(f"{i}) {module.name}")
@@ -51,11 +41,8 @@ def select_module():
     except ValueError:
         raise ValueError("Invalid input. Please enter a number.")
 
-
 def select_tool(module_path):
-    """Prompts the user to select a tool from the module's tasks.json."""
     tasks_file = module_path / "tasks.json"
-
     if not tasks_file.exists():
         raise FileNotFoundError("tasks.json not found for selected module")
 
@@ -75,9 +62,7 @@ def select_tool(module_path):
     except ValueError:
         raise ValueError("Invalid input. Please enter a number.")
 
-
 def run_script(os_name, module_path, task):
-    """Constructs the script path, gets parameters, and runs the script."""
     script_base = task["script"]
 
     if os_name == "windows":
@@ -95,30 +80,28 @@ def run_script(os_name, module_path, task):
             value = input(f"{param}: ")
             values.append(value)
 
-    # Run script
+    # Build command
     if os_name == "windows":
         command = ["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", str(script_path), *values]
     else:
         command = [str(script_path), *values]
 
-    try:
-        result = subprocess.run(command, capture_output=True, text=True)
+    # Run command using privilege_runner
+    result = run_command(command, admin_required=task.get("admin", False))
 
-        # Final selection summary
+    # Display results
+    if result:
         print("\nYou selected:")
         print(f"OS: {os_name}")
         print(f"Module: {module_path.name}")
         print(f"Tool: {task['name']}")
         print(f"Script path: {script_path}")
         print(f"Parameters: {values}")
-        print(f"Output: {result.stdout}")
-        
+        print("\nOutput:")
+        print(result.stdout)
         if result.stderr:
-            print(f"Error Output: {result.stderr}")
-
-    except Exception as e:
-        print(f"Failed to execute script: {e}")
-
+            print("Error Output:")
+            print(result.stderr)
 
 if __name__ == "__main__":
     try:
