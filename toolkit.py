@@ -62,7 +62,7 @@ def select_tool(module_path):
     except ValueError:
         raise ValueError("Invalid input. Please enter a number.")
 
-def run_script(os_name, module_path, task):
+def run_script(os_name, module_path, task, dry_run=False):
     script_base = task["script"]
 
     if os_name == "windows":
@@ -86,11 +86,11 @@ def run_script(os_name, module_path, task):
     else:
         command = [str(script_path), *values]
 
-    # Run command using privilege_runner
-    result = run_command(command, admin_required=task.get("admin", False))
+    # Run command using privilege_runner with optional dry-run
+    result = run_command(command, admin_required=task.get("admin", False), dry_run=dry_run)
 
-    # Display results
-    if result:
+    # Display results if not dry-run
+    if not dry_run and result:
         print("\nYou selected:")
         print(f"OS: {os_name}")
         print(f"Module: {module_path.name}")
@@ -108,6 +108,11 @@ if __name__ == "__main__":
         selected_os = select_os()
         selected_module = select_module()
         selected_tool = select_tool(selected_module)
-        run_script(selected_os, selected_module, selected_tool)
+
+        # Ask user if they want dry-run mode
+        dry_run_input = input("\nRun in dry-run mode? (y/n): ").lower().strip()
+        dry_run = dry_run_input == "y"
+
+        run_script(selected_os, selected_module, selected_tool, dry_run=dry_run)
     except Exception as e:
         print(f"Error: {e}")
