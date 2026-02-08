@@ -30,25 +30,19 @@ def select_tool(module_path):
 
     return tasks[int(input("Enter your choice: ")) - 1]
 
-def run_script(os_name, module_path, task, dry_run):
-    script_base = task["script"]
-
+def create_path(os_name, module_path, script_base):
+    """
+    Returns the absolute path and command for the script depending on OS.
+    """
     if os_name == "windows":
         script_path = module_path / os_name / f"{script_base}.ps1"
-        script_str = str(script_path.resolve())
-        # Wrap in quotes if path has spaces
-        if " " in script_str:
-            script_str = f'"{script_str}"'
-        command = [
-            "powershell.exe",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-File",
-            script_str
-        ]
+        return ["powershell.exe", "-ExecutionPolicy", "Bypass", "-File", str(script_path.resolve())]
     else:
         script_path = module_path / os_name / f"{script_base}.sh"
-        command = ["bash", str(script_path.resolve())]
+        return ["bash", str(script_path.resolve())]
+
+def run_script(os_name, module_path, task, dry_run):
+    command = create_path(os_name, module_path, task["script"])
 
     params = task.get("params", [])
     if params:
@@ -56,7 +50,6 @@ def run_script(os_name, module_path, task, dry_run):
         for param in params:
             command.append(input(f"{param}: "))
 
-    # Decide runner based on admin flag
     runner = run_admin_command if task.get("admin", False) else run_command
 
     if dry_run:
