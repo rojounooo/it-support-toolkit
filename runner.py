@@ -32,20 +32,19 @@ def run_admin_command(command, dry_run=False):
 
     if system == "Windows":
         if not is_admin():
-
-            ps_args = command[1:] + [
-                "-NoExit",
-                "-Command",
-                'Read-Host "Press Enter to exit"'
-            ]
-
+            ps_args = command[1:]
+            
+            escaped_args = []
+            for arg in ps_args:
+                escaped = arg.replace("'", "''")
+                escaped_args.append(f"'{escaped}'")
+            
+            args_string = ",".join(escaped_args)
+            
             command_to_run = [
                 "powershell.exe",
                 "-Command",
-                "Start-Process",
-                "powershell.exe",
-                "-Verb", "RunAs",
-                "-ArgumentList", ",".join(f'"{arg}"' for arg in ps_args)
+                f"Start-Process powershell.exe -Verb RunAs -ArgumentList {args_string} -Wait"
             ]
 
             if dry_run:
@@ -76,5 +75,3 @@ def run_admin_command(command, dry_run=False):
         stderr=sys.stderr,
         text=True
     )
-
-
