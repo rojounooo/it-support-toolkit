@@ -109,7 +109,11 @@ Scripts can be written in:
 - Practice real-world helpdesk automation  
 - Reduce repetitive troubleshooting work  
 - Build practical scripting skills  
- 
 
 ---
+
+## Security Considerations
+
+- Dry-run mode is available for tasks to preview commands
+- Shell=true not used to prevent shell injection
 
