@@ -33,8 +33,10 @@ def run_admin_command(command, dry_run=False):
 
     if system == "Windows":
         if not user_is_admin:
-            # Launch elevated in a new window (stdout won't be captured)
-            argument_list = " ".join(command)
+            # Wrap the command in quotes and append Read-Host to pause
+            argument_list = " ".join(f'"{c}"' if " " in c else c for c in command)
+            argument_list += '; Read-Host "Press Enter to exit"'
+
             command_to_run = [
                 "powershell.exe",
                 "-Command",
@@ -44,12 +46,13 @@ def run_admin_command(command, dry_run=False):
                 print("\nDry run mode: the command that would be executed is:")
                 print(" ".join(command_to_run))
                 return None
+
             subprocess.run(command_to_run)
             print("Task launched in a new elevated window.")
             return None
         else:
-            # Already admin; run normally
-            command_to_run = command
+            # Already admin, append pause in the same window
+            command_to_run = command + ['; Read-Host "Press Enter to exit"']
 
     else:  # Linux/macOS
         if not user_is_admin:

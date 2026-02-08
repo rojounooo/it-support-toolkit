@@ -35,12 +35,16 @@ def run_script(os_name, module_path, task, dry_run):
 
     if os_name == "windows":
         script_path = module_path / os_name / f"{script_base}.ps1"
+        script_str = str(script_path.resolve())
+        # Wrap in quotes if path has spaces
+        if " " in script_str:
+            script_str = f'"{script_str}"'
         command = [
             "powershell.exe",
             "-ExecutionPolicy",
             "Bypass",
             "-File",
-            str(script_path.resolve())
+            script_str
         ]
     else:
         script_path = module_path / os_name / f"{script_base}.sh"
@@ -52,6 +56,7 @@ def run_script(os_name, module_path, task, dry_run):
         for param in params:
             command.append(input(f"{param}: "))
 
+    # Decide runner based on admin flag
     runner = run_admin_command if task.get("admin", False) else run_command
 
     if dry_run:
@@ -61,6 +66,7 @@ def run_script(os_name, module_path, task, dry_run):
         print("\nExecuting command...")
 
     runner(command, dry_run=False)
+
 
 if __name__ == "__main__":
     selected_os = select_os()
