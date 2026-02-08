@@ -1,6 +1,6 @@
 import pathlib
 import json
-from privilege_runner import run_command, run_admin_command
+from runner import run_command, run_admin_command
 
 def select_os():
     print("Select OS:")
