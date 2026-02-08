@@ -97,6 +97,7 @@ Results are printed to the terminal so they can be copied directly into support 
 1. Add a script to the appropriate category and OS folder in `modules/`  
 2. Make sure it runs on its own  
 3. Keep output clean and readable  
+4. Add a task to `tasks.json`    
 
 Scripts can be written in:
 - Bash  
